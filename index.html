@@ -133,7 +133,24 @@
     margin-top:14px;
     font-family:var(--mono);
     font-size:15.5px;
-    line-height:1.85;
+    line-height:1.4;
+  }
+  .cline{margin-bottom:10px;}
+  .chords{
+    color:var(--chord);
+    font-weight:700;
+    white-space:pre-wrap;
+    word-wrap:break-word;
+  }
+  .lyric{
+    color:var(--ink);
+    white-space:pre-wrap;
+    word-wrap:break-word;
+  }
+  .fullchord{
+    color:var(--chord);
+    font-weight:700;
+    opacity:.85;
     white-space:pre-wrap;
     word-wrap:break-word;
   }
@@ -217,6 +234,12 @@ function norm(s){
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 }
 
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
 function render(items){
   listEl.innerHTML = '';
   if(items.length === 0){
@@ -242,14 +265,29 @@ function render(items){
 
 function search(q){
   q = norm(q.trim());
-  if(!q) return SONGS.slice(0, 60);
-  return SONGS.filter(s => norm(s.title).includes(q) || norm(s.text).includes(q));
+  if(!q) return SONGS;
+  return SONGS.filter(s => norm(s.search).includes(q));
+}
+
+function renderChordPane(song){
+  let html = '';
+  song.lines.forEach(ln => {
+    if(ln.c && ln.l){
+      html += '<div class="cline"><div class="chords">' + escapeHtml(ln.c) + '</div>'
+            + '<div class="lyric">' + escapeHtml(ln.l) + '</div></div>';
+    } else if(ln.c && !ln.l){
+      html += '<div class="cline"><div class="fullchord">' + escapeHtml(ln.c) + '</div></div>';
+    } else if(!ln.c && ln.l){
+      html += '<div class="cline"><div class="lyric">' + escapeHtml(ln.l) + '</div></div>';
+    }
+  });
+  vText.innerHTML = html;
 }
 
 function openSong(song){
   vTitle.textContent = song.title;
   vSource.innerHTML = song.source + (song.url ? ' &middot; <a href="'+song.url+'" target="_blank" rel="noopener">abrir PDF original</a>' : '');
-  vText.textContent = song.text;
+  renderChordPane(song);
   listView.classList.add('hidden');
   viewer.classList.add('open');
   window.scrollTo(0,0);
