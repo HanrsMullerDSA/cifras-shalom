@@ -216,7 +216,7 @@
 
 <footer>doc.min.musica &middot; extraído do Google Drive compartilhado</footer>
 
-<script src="songs_data.js"></script>
+<script src="songs_data.js?v=2"></script>
 <script>
 const listEl = document.getElementById('list');
 const emptyEl = document.getElementById('empty');
@@ -271,7 +271,8 @@ function search(q){
 
 function renderChordPane(song){
   let html = '';
-  song.lines.forEach(ln => {
+  const lines = song.lines || [];
+  lines.forEach(ln => {
     if(ln.c && ln.l){
       html += '<div class="cline"><div class="chords">' + escapeHtml(ln.c) + '</div>'
             + '<div class="lyric">' + escapeHtml(ln.l) + '</div></div>';
