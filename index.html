@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Cifras · Ministério de Música</title>
+<style>
+  :root{
+    --paper:#151812;
+    --paper-raised:#1d211a;
+    --ink:#f2ede0;
+    --ink-dim:#a9a693;
+    --line:#33392c;
+    --gold:#c9a227;
+    --gold-dim:#8a7222;
+    --chord:#e8b23a;
+    --serif:'Iowan Old Style','Georgia',serif;
+    --mono:'IBM Plex Mono','SFMono-Regular',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .header{
+    padding:28px 20px 18px;
+    border-bottom:1px solid var(--line);
+    position:sticky;
+    top:0;
+    background:var(--paper);
+    z-index:10;
+  }
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin:0 0 6px;
+  }
+  h1{
+    margin:0 0 16px;
+    font-size:26px;
+    font-weight:600;
+    letter-spacing:-.01em;
+  }
+  .search-wrap{position:relative;}
+  #search{
+    width:100%;
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:17px;
+    padding:14px 16px;
+    border-radius:10px;
+    outline:none;
+  }
+  #search:focus{border-color:var(--gold-dim);}
+  .count{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--ink-dim);
+    margin-top:8px;
+  }
+  main{padding:8px 16px 60px;max-width:720px;margin:0 auto;}
+  .list{list-style:none;margin:0;padding:0;}
+  .list li{
+    border-bottom:1px solid var(--line);
+  }
+  .list button{
+    all:unset;
+    display:block;
+    width:100%;
+    padding:16px 6px;
+    cursor:pointer;
+  }
+  .song-title{
+    font-size:18px;
+    font-weight:600;
+  }
+  .song-source{
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--ink-dim);
+    margin-top:3px;
+    letter-spacing:.02em;
+  }
+  .empty{
+    color:var(--ink-dim);
+    font-family:var(--mono);
+    font-size:13px;
+    padding:40px 6px;
+    text-align:center;
+  }
+  /* viewer */
+  #viewer{display:none;}
+  #viewer.open{display:block;}
+  #list-view.hidden{display:none;}
+  .back-btn{
+    all:unset;
+    cursor:pointer;
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--gold);
+    letter-spacing:.06em;
+    padding:8px 6px;
+    display:inline-block;
+  }
+  .back-btn:before{content:"← ";}
+  .viewer-title{
+    font-size:24px;
+    font-weight:700;
+    margin:10px 0 2px;
+    line-height:1.2;
+  }
+  .viewer-source{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-dim);
+    margin-bottom:8px;
+  }
+  .viewer-source a{color:var(--gold-dim);}
+  .chord-pane{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px 16px;
+    margin-top:14px;
+    font-family:var(--mono);
+    font-size:15.5px;
+    line-height:1.85;
+    white-space:pre-wrap;
+    word-wrap:break-word;
+  }
+  .fontsize-controls{
+    display:flex;
+    gap:8px;
+    margin-top:14px;
+    align-items:center;
+  }
+  .fontsize-controls button{
+    all:unset;
+    cursor:pointer;
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--ink);
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    width:34px;
+    height:34px;
+    text-align:center;
+    border-radius:8px;
+  }
+  .fontsize-controls button:active{border-color:var(--gold-dim);}
+  footer{
+    text-align:center;
+    color:var(--ink-dim);
+    font-family:var(--mono);
+    font-size:10.5px;
+    padding:30px 20px 40px;
+    letter-spacing:.04em;
+  }
+  ::selection{background:var(--gold-dim);color:#111;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <p class="eyebrow">Ministério de Música</p>
+  <h1 id="page-title">Cifras</h1>
+  <div class="search-wrap">
+    <input id="search" type="text" placeholder="Buscar música…" autocomplete="off" autocapitalize="off" spellcheck="false">
+  </div>
+  <p class="count" id="count"></p>
+</div>
+
+<main>
+  <div id="list-view">
+    <ul class="list" id="list"></ul>
+    <p class="empty" id="empty" style="display:none;">Nenhuma música encontrada.</p>
+  </div>
+
+  <div id="viewer">
+    <button class="back-btn" id="back-btn">voltar</button>
+    <div class="viewer-title" id="v-title"></div>
+    <div class="viewer-source" id="v-source"></div>
+    <div class="fontsize-controls">
+      <button id="font-minus">A-</button>
+      <button id="font-plus">A+</button>
+    </div>
+    <div class="chord-pane" id="v-text"></div>
+  </div>
+</main>
+
+<footer>doc.min.musica &middot; extraído do Google Drive compartilhado</footer>
+
+<script src="songs_data.js"></script>
+<script>
+const listEl = document.getElementById('list');
+const emptyEl = document.getElementById('empty');
+const countEl = document.getElementById('count');
+const searchEl = document.getElementById('search');
+const listView = document.getElementById('list-view');
+const viewer = document.getElementById('viewer');
+const backBtn = document.getElementById('back-btn');
+const vTitle = document.getElementById('v-title');
+const vSource = document.getElementById('v-source');
+const vText = document.getElementById('v-text');
+const chordPane = document.getElementById('v-text');
+
+function norm(s){
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+function render(items){
+  listEl.innerHTML = '';
+  if(items.length === 0){
+    emptyEl.style.display = 'block';
+    countEl.textContent = '';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  countEl.textContent = items.length + (items.length === 1 ? ' música' : ' músicas');
+  const frag = document.createDocumentFragment();
+  items.forEach((song) => {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.innerHTML = '<div class="song-title"></div><div class="song-source"></div>';
+    btn.querySelector('.song-title').textContent = song.title;
+    btn.querySelector('.song-source').textContent = song.source;
+    btn.addEventListener('click', () => openSong(song));
+    li.appendChild(btn);
+    frag.appendChild(li);
+  });
+  listEl.appendChild(frag);
+}
+
+function search(q){
+  q = norm(q.trim());
+  if(!q) return SONGS.slice(0, 60);
+  return SONGS.filter(s => norm(s.title).includes(q) || norm(s.text).includes(q));
+}
+
+function openSong(song){
+  vTitle.textContent = song.title;
+  vSource.innerHTML = song.source + (song.url ? ' &middot; <a href="'+song.url+'" target="_blank" rel="noopener">abrir PDF original</a>' : '');
+  vText.textContent = song.text;
+  listView.classList.add('hidden');
+  viewer.classList.add('open');
+  window.scrollTo(0,0);
+}
+
+backBtn.addEventListener('click', () => {
+  viewer.classList.remove('open');
+  listView.classList.remove('hidden');
+});
+
+searchEl.addEventListener('input', () => render(search(searchEl.value)));
+
+let fontSize = 15.5;
+document.getElementById('font-plus').addEventListener('click', () => {
+  fontSize = Math.min(fontSize + 1.5, 26);
+  chordPane.style.fontSize = fontSize + 'px';
+});
+document.getElementById('font-minus').addEventListener('click', () => {
+  fontSize = Math.max(fontSize - 1.5, 11);
+  chordPane.style.fontSize = fontSize + 'px';
+});
+
+render(search(''));
+</script>
+</body>
+</html>
