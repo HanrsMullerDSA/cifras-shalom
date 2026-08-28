@@ -8,12 +8,14 @@
   :root{
     --paper:#151812;
     --paper-raised:#1d211a;
+    --paper-raised-2:#242a1e;
     --ink:#f2ede0;
     --ink-dim:#a9a693;
     --line:#33392c;
     --gold:#c9a227;
     --gold-dim:#8a7222;
     --chord:#e8b23a;
+    --danger:#c9603f;
     --serif:'Iowan Old Style','Georgia',serif;
     --mono:'IBM Plex Mono','SFMono-Regular',Menlo,Consolas,monospace;
   }
@@ -27,7 +29,7 @@
     -webkit-font-smoothing:antialiased;
   }
   .header{
-    padding:28px 20px 18px;
+    padding:24px 20px 0;
     border-bottom:1px solid var(--line);
     position:sticky;
     top:0;
@@ -48,80 +50,142 @@
     font-weight:600;
     letter-spacing:-.01em;
   }
+  h2{
+    font-size:19px;
+    font-weight:600;
+    margin:0 0 2px;
+  }
   .search-wrap{position:relative;}
-  #search{
+  input[type=text]{
     width:100%;
     background:var(--paper-raised);
     border:1px solid var(--line);
     color:var(--ink);
     font-family:var(--serif);
-    font-size:17px;
-    padding:14px 16px;
+    font-size:16px;
+    padding:13px 15px;
     border-radius:10px;
     outline:none;
   }
-  #search:focus{border-color:var(--gold-dim);}
+  input[type=text]:focus{border-color:var(--gold-dim);}
   .count{
     font-family:var(--mono);
     font-size:11px;
     color:var(--ink-dim);
     margin-top:8px;
+    padding-bottom:14px;
   }
   main{padding:8px 16px 60px;max-width:720px;margin:0 auto;}
+
+  .tabs{display:flex;gap:4px;margin-top:16px;}
+  .tab{
+    all:unset;cursor:pointer;font-family:var(--mono);font-size:12px;
+    letter-spacing:.04em;color:var(--ink-dim);padding:10px 4px;flex:1;
+    text-align:center;border-bottom:2px solid transparent;
+  }
+  .tab.active{color:var(--gold);border-bottom:2px solid var(--gold);}
+  section.tabpanel{display:none;}
+  section.tabpanel.active{display:block;}
+
   .list{list-style:none;margin:0;padding:0;}
-  .list li{
-    border-bottom:1px solid var(--line);
-  }
-  .list button{
-    all:unset;
-    display:block;
-    width:100%;
-    padding:16px 6px;
-    cursor:pointer;
-  }
-  .song-title{
-    font-size:18px;
-    font-weight:600;
-  }
-  .song-source{
-    font-family:var(--mono);
-    font-size:11.5px;
-    color:var(--ink-dim);
-    margin-top:3px;
-    letter-spacing:.02em;
-  }
-  .empty{
-    color:var(--ink-dim);
-    font-family:var(--mono);
-    font-size:13px;
-    padding:40px 6px;
-    text-align:center;
-  }
-  /* viewer */
+  .list li{border-bottom:1px solid var(--line);}
   .list a{
-    all:unset;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    width:100%;
-    padding:16px 6px;
-    cursor:pointer;
-    box-sizing:border-box;
+    all:unset;display:flex;align-items:center;justify-content:space-between;
+    gap:12px;width:100%;padding:16px 6px;cursor:pointer;box-sizing:border-box;
   }
-  .open-icon{
-    font-family:var(--mono);
-    color:var(--gold-dim);
-    font-size:16px;
-    flex-shrink:0;
+  .song-title{font-size:18px;font-weight:600;}
+  .song-source{
+    font-family:var(--mono);font-size:11.5px;color:var(--ink-dim);
+    margin-top:3px;letter-spacing:.02em;
   }
+  .open-icon{font-family:var(--mono);color:var(--gold-dim);font-size:16px;flex-shrink:0;}
+  .empty{
+    color:var(--ink-dim);font-family:var(--mono);font-size:13px;
+    padding:40px 6px;text-align:center;
+  }
+
+  .section-card{
+    background:var(--paper-raised);border:1px solid var(--line);
+    border-radius:12px;padding:16px;margin:14px 0;
+  }
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+  .section-count{font-family:var(--mono);font-size:11px;color:var(--ink-dim);}
+  .mini-list{list-style:none;margin:12px 0 0;padding:0;}
+  .mini-item{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;padding:9px 0;border-top:1px solid var(--line);
+  }
+  .mini-item a{
+    color:var(--ink);text-decoration:none;font-size:15px;flex:1;
+    min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .mini-item a:hover{color:var(--gold);}
+  .mini-remove{
+    all:unset;cursor:pointer;color:var(--danger);font-family:var(--mono);
+    font-size:15px;padding:2px 6px;flex-shrink:0;
+  }
+  .add-btn{
+    all:unset;cursor:pointer;display:inline-block;margin-top:12px;
+    font-family:var(--mono);font-size:12.5px;color:var(--gold);
+    border:1px solid var(--gold-dim);border-radius:8px;padding:8px 12px;
+  }
+  .repertorio-empty{
+    color:var(--ink-dim);font-family:var(--mono);font-size:13px;
+    text-align:center;padding:30px 10px;
+  }
+  .toolbar{display:flex;gap:10px;margin:18px 0 6px;}
+  .btn{
+    all:unset;cursor:pointer;font-family:var(--mono);font-size:12.5px;
+    color:var(--ink);background:var(--paper-raised-2);border:1px solid var(--line);
+    border-radius:8px;padding:10px 14px;text-align:center;flex:1;
+  }
+  .btn.primary{color:var(--paper);background:var(--gold);border-color:var(--gold);font-weight:700;}
+
+  .modal-overlay{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);
+    z-index:100;align-items:flex-end;justify-content:center;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:var(--paper);border:1px solid var(--line);
+    border-top-left-radius:16px;border-top-right-radius:16px;
+    width:100%;max-width:720px;max-height:88vh;overflow-y:auto;padding:18px 18px 28px;
+  }
+  .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .modal-head h3{margin:0;font-size:18px;}
+  .modal-close{
+    all:unset;cursor:pointer;color:var(--ink-dim);font-family:var(--mono);
+    font-size:20px;padding:4px 8px;
+  }
+  .modal-section-label{
+    font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--ink-dim);margin:20px 0 8px;
+  }
+  .modal-section-label:first-of-type{margin-top:0;}
+  .modal-results{list-style:none;margin:8px 0 0;padding:0;max-height:240px;overflow-y:auto;}
+  .modal-results li{border-bottom:1px solid var(--line);}
+  .modal-result-btn{all:unset;cursor:pointer;display:block;width:100%;padding:11px 4px;}
+  .modal-result-title{font-size:15.5px;}
+  .modal-result-source{font-family:var(--mono);font-size:10.5px;color:var(--ink-dim);margin-top:2px;}
+  .manual-fields{margin-top:8px;}
+  .manual-fields input{margin-bottom:8px;}
+  .external-links{display:flex;gap:8px;margin-top:10px;}
+  .external-links a{
+    all:unset;cursor:pointer;flex:1;text-align:center;font-family:var(--mono);
+    font-size:12px;color:var(--gold);border:1px solid var(--gold-dim);
+    border-radius:8px;padding:9px 6px;
+  }
+  .toast{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    background:var(--gold);color:var(--paper);font-family:var(--mono);font-size:12.5px;
+    padding:10px 18px;border-radius:20px;z-index:200;opacity:0;pointer-events:none;
+    transition:opacity .2s;
+  }
+  .toast.show{opacity:1;}
+
   footer{
-    text-align:center;
-    color:var(--ink-dim);
-    font-family:var(--mono);
-    font-size:10.5px;
-    padding:30px 20px 40px;
-    letter-spacing:.04em;
+    text-align:center;color:var(--ink-dim);font-family:var(--mono);
+    font-size:10.5px;padding:30px 20px 40px;letter-spacing:.04em;
   }
   ::selection{background:var(--gold-dim);color:#111;}
 </style>
@@ -130,34 +194,148 @@
 
 <div class="header">
   <p class="eyebrow">Ministério de Música</p>
-  <h1 id="page-title">Cifras</h1>
-  <div class="search-wrap">
-    <input id="search" type="text" placeholder="Buscar música…" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <h1>Cifras</h1>
+  <div class="tabs">
+    <button class="tab active" data-tab="search">Buscar</button>
+    <button class="tab" data-tab="missa">Missa</button>
+    <button class="tab" data-tab="repertorio">Repertório</button>
   </div>
-  <p class="count" id="count"></p>
 </div>
 
 <main>
-  <div id="list-view">
+
+  <section class="tabpanel active" id="tab-search">
+    <div class="search-wrap" style="margin-top:14px;">
+      <input id="search" type="text" placeholder="Buscar música…" autocomplete="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <p class="count" id="count"></p>
     <ul class="list" id="list"></ul>
     <p class="empty" id="empty" style="display:none;">Nenhuma música encontrada.</p>
-  </div>
+  </section>
+
+  <section class="tabpanel" id="tab-missa">
+    <div id="missa-sections"></div>
+    <div class="toolbar">
+      <button class="btn primary" id="missa-share">Compartilhar repertório</button>
+    </div>
+  </section>
+
+  <section class="tabpanel" id="tab-repertorio">
+    <div class="section-card">
+      <div class="section-head">
+        <h2>Repertório livre</h2>
+        <span class="section-count" id="repertorio-count"></span>
+      </div>
+      <ul class="mini-list" id="repertorio-list"></ul>
+      <p class="repertorio-empty" id="repertorio-empty" style="display:none;">Nenhuma música adicionada ainda.</p>
+      <button class="add-btn" id="repertorio-add">+ adicionar música</button>
+    </div>
+    <div class="toolbar">
+      <button class="btn primary" id="repertorio-share">Compartilhar repertório</button>
+    </div>
+  </section>
+
 </main>
 
 <footer>doc.min.musica &middot; extraído do Google Drive compartilhado</footer>
 
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-title">Adicionar música</h3>
+      <button class="modal-close" id="modal-close">×</button>
+    </div>
+
+    <input type="text" id="modal-search" placeholder="Buscar nas cifras…" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <ul class="modal-results" id="modal-results"></ul>
+
+    <p class="modal-section-label">Não achou? Cole o link da cifra</p>
+    <div class="manual-fields">
+      <input type="text" id="manual-title" placeholder="Nome da música">
+      <input type="text" id="manual-url" placeholder="Link (CifraClub, Google Drive, etc.)">
+      <button class="add-btn" id="manual-add" style="width:100%;text-align:center;">Adicionar link</button>
+    </div>
+
+    <p class="modal-section-label">Buscar direto na internet</p>
+    <div class="external-links">
+      <a id="link-google" target="_blank" rel="noopener">Google ↗</a>
+      <a id="link-cifraclub" target="_blank" rel="noopener">Cifra Club ↗</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script src="songs_data.js?v=6"></script>
 <script>
+const MISSA_SECTIONS = [
+  {key:'entrada', label:'Canto de entrada'},
+  {key:'penitencial', label:'Ato penitencial'},
+  {key:'gloria', label:'Glória'},
+  {key:'salmo', label:'Salmo'},
+  {key:'aclamacao', label:'Aclamação'},
+  {key:'preces', label:'Preces'},
+  {key:'ofertorio', label:'Ofertório'},
+  {key:'santo', label:'Santo'},
+  {key:'oracao_eucaristica', label:'Oração eucarística'},
+  {key:'elevacao', label:'Elevação'},
+  {key:'amem', label:'Amém'},
+  {key:'cordeiro', label:'Cordeiro'},
+  {key:'comunhao', label:'Comunhão'},
+  {key:'acao_gracas', label:'Ação de graças'},
+  {key:'final', label:'Canto final'},
+];
+
+function loadData(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    if(!raw) return fallback;
+    return JSON.parse(raw);
+  }catch(e){ return fallback; }
+}
+function saveData(key, val){
+  try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+}
+
+let missaData = loadData('missa_repertorio_v1', {});
+let repertorioData = loadData('repertorio_livre_v1', []);
+
+function norm(s){
+  return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tabpanel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
 const listEl = document.getElementById('list');
 const emptyEl = document.getElementById('empty');
 const countEl = document.getElementById('count');
 const searchEl = document.getElementById('search');
 
-function norm(s){
-  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+function searchSongs(q){
+  q = norm(q.trim());
+  if(!q) return SONGS;
+  return SONGS.filter(s => norm(s.search).includes(q));
 }
 
-function render(items){
+function renderSearchTab(items){
   listEl.innerHTML = '';
   if(items.length === 0){
     emptyEl.style.display = 'block';
@@ -182,15 +360,194 @@ function render(items){
   listEl.appendChild(frag);
 }
 
-function search(q){
-  q = norm(q.trim());
-  if(!q) return SONGS;
-  return SONGS.filter(s => norm(s.search).includes(q));
+searchEl.addEventListener('input', () => renderSearchTab(searchSongs(searchEl.value)));
+renderSearchTab(searchSongs(''));
+
+const missaSectionsEl = document.getElementById('missa-sections');
+
+function renderMissaSections(){
+  missaSectionsEl.innerHTML = '';
+  MISSA_SECTIONS.forEach(sec => {
+    const items = missaData[sec.key] || [];
+    const card = document.createElement('div');
+    card.className = 'section-card';
+    card.innerHTML = '<div class="section-head"><h2>' + escapeHtml(sec.label) + '</h2><span class="section-count">' +
+      (items.length ? items.length + (items.length===1?' música':' músicas') : '') +
+      '</span></div><ul class="mini-list"></ul><button class="add-btn">+ adicionar música</button>';
+    const ul = card.querySelector('.mini-list');
+    items.forEach((song, idx) => {
+      const li = document.createElement('li');
+      li.className = 'mini-item';
+      li.innerHTML = '<a href="' + escapeHtml(song.url || '#') + '" target="_blank" rel="noopener"></a><button class="mini-remove">×</button>';
+      li.querySelector('a').textContent = song.title;
+      li.querySelector('.mini-remove').addEventListener('click', () => {
+        missaData[sec.key].splice(idx, 1);
+        saveData('missa_repertorio_v1', missaData);
+        renderMissaSections();
+      });
+      ul.appendChild(li);
+    });
+    card.querySelector('.add-btn').addEventListener('click', () => openModal({type:'missa', key:sec.key, label:sec.label}));
+    missaSectionsEl.appendChild(card);
+  });
+}
+renderMissaSections();
+
+const repertorioListEl = document.getElementById('repertorio-list');
+const repertorioEmptyEl = document.getElementById('repertorio-empty');
+const repertorioCountEl = document.getElementById('repertorio-count');
+
+function renderRepertorio(){
+  repertorioListEl.innerHTML = '';
+  repertorioCountEl.textContent = repertorioData.length ? repertorioData.length + (repertorioData.length===1?' música':' músicas') : '';
+  repertorioEmptyEl.style.display = repertorioData.length ? 'none' : 'block';
+  repertorioData.forEach((song, idx) => {
+    const li = document.createElement('li');
+    li.className = 'mini-item';
+    li.innerHTML = '<a href="' + escapeHtml(song.url || '#') + '" target="_blank" rel="noopener"></a><button class="mini-remove">×</button>';
+    li.querySelector('a').textContent = song.title;
+    li.querySelector('.mini-remove').addEventListener('click', () => {
+      repertorioData.splice(idx, 1);
+      saveData('repertorio_livre_v1', repertorioData);
+      renderRepertorio();
+    });
+    repertorioListEl.appendChild(li);
+  });
+}
+renderRepertorio();
+document.getElementById('repertorio-add').addEventListener('click', () => openModal({type:'repertorio'}));
+
+let modalTarget = null;
+const modalOverlay = document.getElementById('modal-overlay');
+const modalTitleEl = document.getElementById('modal-title');
+const modalSearchEl = document.getElementById('modal-search');
+const modalResultsEl = document.getElementById('modal-results');
+const manualTitleEl = document.getElementById('manual-title');
+const manualUrlEl = document.getElementById('manual-url');
+const linkGoogleEl = document.getElementById('link-google');
+const linkCifraClubEl = document.getElementById('link-cifraclub');
+
+function openModal(target){
+  modalTarget = target;
+  modalTitleEl.textContent = target.type === 'missa' ? ('Adicionar a: ' + target.label) : 'Adicionar ao repertório';
+  modalSearchEl.value = '';
+  manualTitleEl.value = '';
+  manualUrlEl.value = '';
+  renderModalResults(SONGS.slice(0, 30));
+  updateExternalLinks('');
+  modalOverlay.classList.add('open');
+  setTimeout(() => modalSearchEl.focus(), 50);
+}
+function closeModal(){
+  modalOverlay.classList.remove('open');
+  modalTarget = null;
+}
+document.getElementById('modal-close').addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', (e) => { if(e.target === modalOverlay) closeModal(); });
+
+function renderModalResults(items){
+  modalResultsEl.innerHTML = '';
+  items.slice(0, 30).forEach(song => {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.className = 'modal-result-btn';
+    btn.innerHTML = '<div class="modal-result-title"></div><div class="modal-result-source"></div>';
+    btn.querySelector('.modal-result-title').textContent = song.title;
+    btn.querySelector('.modal-result-source').textContent = song.source;
+    btn.addEventListener('click', () => {
+      addSongToTarget({title: song.title, url: song.url, source: song.source});
+    });
+    li.appendChild(btn);
+    modalResultsEl.appendChild(li);
+  });
 }
 
-searchEl.addEventListener('input', () => render(search(searchEl.value)));
+modalSearchEl.addEventListener('input', () => {
+  const q = modalSearchEl.value;
+  renderModalResults(searchSongs(q));
+  updateExternalLinks(q);
+});
 
-render(search(''));
+function updateExternalLinks(q){
+  const query = (q || '').trim();
+  const gq = encodeURIComponent(query ? (query + ' cifra') : 'cifra');
+  linkGoogleEl.href = 'https://www.google.com/search?q=' + gq;
+  linkCifraClubEl.href = 'https://www.google.com/search?q=' + encodeURIComponent((query || '') + ' site:cifraclub.com.br');
+}
+
+document.getElementById('manual-add').addEventListener('click', () => {
+  const title = manualTitleEl.value.trim();
+  let url = manualUrlEl.value.trim();
+  if(!title){
+    showToast('Digite o nome da música');
+    return;
+  }
+  if(url && !/^https?:\/\//i.test(url)){
+    url = 'https://' + url;
+  }
+  addSongToTarget({title, url, source: 'link manual'});
+});
+
+function addSongToTarget(song){
+  if(!modalTarget) return;
+  if(modalTarget.type === 'missa'){
+    if(!missaData[modalTarget.key]) missaData[modalTarget.key] = [];
+    missaData[modalTarget.key].push(song);
+    saveData('missa_repertorio_v1', missaData);
+    renderMissaSections();
+  } else {
+    repertorioData.push(song);
+    saveData('repertorio_livre_v1', repertorioData);
+    renderRepertorio();
+  }
+  showToast('"' + song.title + '" adicionada');
+}
+
+async function shareText(text){
+  if(navigator.share){
+    try{
+      await navigator.share({text});
+      return;
+    }catch(e){ /* cancelled or unsupported */ }
+  }
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast('Copiado! Cole onde quiser enviar.');
+  }catch(e){
+    showToast('Não foi possível copiar automaticamente.');
+  }
+}
+
+document.getElementById('missa-share').addEventListener('click', () => {
+  let out = '🎵 *Repertório da Missa*\n';
+  let any = false;
+  MISSA_SECTIONS.forEach(sec => {
+    const items = missaData[sec.key] || [];
+    if(!items.length) return;
+    any = true;
+    out += '\n*' + sec.label + '*\n';
+    items.forEach(i => {
+      out += '- ' + i.title + (i.url ? ' — ' + i.url : '') + '\n';
+    });
+  });
+  if(!any){
+    showToast('Adicione ao menos uma música primeiro');
+    return;
+  }
+  shareText(out.trim());
+});
+
+document.getElementById('repertorio-share').addEventListener('click', () => {
+  if(!repertorioData.length){
+    showToast('Adicione ao menos uma música primeiro');
+    return;
+  }
+  let out = '🎵 *Repertório*\n\n';
+  repertorioData.forEach(i => {
+    out += '- ' + i.title + (i.url ? ' — ' + i.url : '') + '\n';
+  });
+  shareText(out.trim());
+});
 </script>
 </body>
 </html>
