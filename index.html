@@ -99,6 +99,11 @@
     margin-top:3px;letter-spacing:.02em;
   }
   .open-icon{font-family:var(--mono);color:var(--gold-dim);font-size:16px;flex-shrink:0;}
+  .page-badge{
+    font-family:var(--mono);font-size:10px;color:var(--gold-dim);
+    border:1px solid var(--gold-dim);border-radius:6px;padding:2px 6px;
+    flex-shrink:0;white-space:nowrap;
+  }
   .empty{
     color:var(--ink-dim);font-family:var(--mono);font-size:13px;
     padding:40px 6px;text-align:center;
@@ -117,7 +122,7 @@
   }
   .mini-item a{
     color:var(--ink);text-decoration:none;font-size:15px;flex:1;
-    min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    min-width:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
   }
   .mini-item a:hover{color:var(--gold);}
   .mini-remove{
@@ -182,27 +187,6 @@
     transition:opacity .2s;
   }
   .toast.show{opacity:1;}
-
-  .viewer-overlay{
-    display:none;position:fixed;inset:0;background:var(--paper);
-    z-index:300;flex-direction:column;
-  }
-  .viewer-overlay.open{display:flex;}
-  .viewer-head{
-    display:flex;align-items:center;justify-content:space-between;gap:10px;
-    padding:14px 16px;border-bottom:1px solid var(--line);flex-shrink:0;
-  }
-  .viewer-head-title{
-    font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;
-    white-space:nowrap;flex:1;
-  }
-  .viewer-head-actions{display:flex;align-items:center;gap:14px;flex-shrink:0;}
-  .viewer-head-actions a{color:var(--gold);font-family:var(--mono);font-size:12px;text-decoration:none;white-space:nowrap;}
-  .viewer-close{
-    all:unset;cursor:pointer;color:var(--ink-dim);font-family:var(--mono);
-    font-size:22px;line-height:1;padding:0 2px;
-  }
-  #viewer-iframe{flex:1;width:100%;border:none;background:#fff;}
 
   footer{
     text-align:center;color:var(--ink-dim);font-family:var(--mono);
@@ -287,18 +271,7 @@
 
 <div class="toast" id="toast"></div>
 
-<div class="viewer-overlay" id="viewer-overlay">
-  <div class="viewer-head">
-    <span class="viewer-head-title" id="viewer-title"></span>
-    <div class="viewer-head-actions">
-      <a id="viewer-external" target="_blank" rel="noopener">abrir fora ↗</a>
-      <button class="viewer-close" id="viewer-close">×</button>
-    </div>
-  </div>
-  <iframe id="viewer-iframe" allow="fullscreen"></iframe>
-</div>
-
-<script src="songs_data.js?v=9"></script>
+<script src="songs_data.js?v=10"></script>
 <script>
 const MISSA_SECTIONS = [
   {key:'entrada', label:'Canto de entrada'},
@@ -341,60 +314,26 @@ function escapeHtml(s){
   return d.innerHTML;
 }
 
-// Opens each link in a genuinely new tab/window (used as a fallback for
-// non-Google-Drive links, which can't be embedded due to X-Frame-Options).
+// Extracts the page number from a Drive "view" URL, if present, so we can
+// show it as a manual fallback (Drive's page auto-jump isn't fully reliable
+// on every browser/app combination).
+function pageOf(url){
+  const m = url && url.match(/#page=(\d+)/);
+  return m ? m[1] : null;
+}
+function pageBadge(url){
+  const p = pageOf(url);
+  return p ? '<span class="page-badge">pág. ' + p + '</span>' : '';
+}
+
 function openFresh(e, url){
   e.preventDefault();
-  if(!url || url === '#') return;
-  window.open(url, '_blank_' + Date.now() + '_' + Math.random().toString(36).slice(2), 'noopener');
-}
-
-// Converts a Drive "view" link into its embeddable "preview" form, keeping
-// the page number. Drive's /preview endpoint reads the page from a query
-// parameter rather than the #hash used by /view, so we convert it here.
-function toEmbedUrl(url){
-  const m = url && url.match(/\/file\/d\/([^/]+)\/view(?:#page=(\d+))?/);
-  if(m){
-    const fileId = m[1];
-    const page = m[2];
-    return 'https://drive.google.com/file/d/' + fileId + '/preview' + (page ? ('?page=' + page) : '');
-  }
-  return null;
-}
-
-const viewerOverlay = document.getElementById('viewer-overlay');
-const viewerTitleEl = document.getElementById('viewer-title');
-const viewerExternalEl = document.getElementById('viewer-external');
-const viewerIframe = document.getElementById('viewer-iframe');
-
-// Opens the cifra. Google Drive links are shown in an embedded, in-app
-// viewer we fully control (so re-opening a different page of the SAME file
-// always jumps to the right spot). Any other link (CifraClub, manual, etc.)
-// opens in a new browser tab instead, since most sites block being embedded.
-function openCifra(e, url, title){
-  if(e) e.preventDefault();
   if(!url || url === '#'){
     showToast('Sem link disponível para esta música');
     return;
   }
-  const embedUrl = toEmbedUrl(url);
-  if(!embedUrl){
-    window.open(url, '_blank_' + Date.now() + '_' + Math.random().toString(36).slice(2), 'noopener');
-    return;
-  }
-  viewerTitleEl.textContent = title || '';
-  viewerExternalEl.href = url;
-  // Force a real reload even if only the page query param changed.
-  viewerIframe.src = 'about:blank';
-  setTimeout(() => { viewerIframe.src = embedUrl; }, 30);
-  viewerOverlay.classList.add('open');
+  window.open(url, '_blank_' + Date.now() + '_' + Math.random().toString(36).slice(2), 'noopener');
 }
-
-function closeCifraViewer(){
-  viewerOverlay.classList.remove('open');
-  viewerIframe.src = 'about:blank';
-}
-document.getElementById('viewer-close').addEventListener('click', closeCifraViewer);
 function showToast(msg){
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -437,9 +376,9 @@ function renderSearchTab(items){
     const a = document.createElement('a');
     a.href = song.url || '#';
     a.innerHTML = '<div><div class="song-title"></div><div class="song-source"></div></div><div class="open-icon">↗</div>';
-    a.querySelector('.song-title').textContent = song.title;
+    a.querySelector('.song-title').innerHTML = escapeHtml(song.title) + ' ' + pageBadge(song.url);
     a.querySelector('.song-source').textContent = song.source;
-    a.addEventListener('click', (e) => openCifra(e, song.url, song.title));
+    a.addEventListener('click', (e) => openFresh(e, song.url));
     li.appendChild(a);
     frag.appendChild(li);
   });
@@ -465,8 +404,8 @@ function renderMissaSections(){
       const li = document.createElement('li');
       li.className = 'mini-item';
       li.innerHTML = '<a href="' + escapeHtml(song.url || '#') + '"></a><button class="mini-remove">×</button>';
-      li.querySelector('a').textContent = song.title;
-      li.querySelector('a').addEventListener('click', (e) => openCifra(e, song.url, song.title));
+      li.querySelector('a').innerHTML = escapeHtml(song.title) + ' ' + pageBadge(song.url);
+      li.querySelector('a').addEventListener('click', (e) => openFresh(e, song.url));
       li.querySelector('.mini-remove').addEventListener('click', () => {
         missaData[sec.key].splice(idx, 1);
         saveData('missa_repertorio_v1', missaData);
@@ -492,8 +431,8 @@ function renderRepertorio(){
     const li = document.createElement('li');
     li.className = 'mini-item';
     li.innerHTML = '<a href="' + escapeHtml(song.url || '#') + '"></a><button class="mini-remove">×</button>';
-    li.querySelector('a').textContent = song.title;
-    li.querySelector('a').addEventListener('click', (e) => openCifra(e, song.url, song.title));
+    li.querySelector('a').innerHTML = escapeHtml(song.title) + ' ' + pageBadge(song.url);
+    li.querySelector('a').addEventListener('click', (e) => openFresh(e, song.url));
     li.querySelector('.mini-remove').addEventListener('click', () => {
       repertorioData.splice(idx, 1);
       saveData('repertorio_livre_v1', repertorioData);
