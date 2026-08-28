@@ -266,7 +266,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="songs_data.js?v=6"></script>
+<script src="songs_data.js?v=7"></script>
 <script>
 const MISSA_SECTIONS = [
   {key:'entrada', label:'Canto de entrada'},
@@ -307,6 +307,15 @@ function escapeHtml(s){
   const d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
+}
+
+// Opens each link in a genuinely new tab/window, even when several links
+// point to the same Google Drive file with different #page=N — otherwise
+// some mobile browsers reuse the already-open viewer and ignore the new page.
+function openFresh(e, url){
+  e.preventDefault();
+  if(!url || url === '#') return;
+  window.open(url, '_blank_' + Date.now() + '_' + Math.random().toString(36).slice(2), 'noopener');
 }
 function showToast(msg){
   const t = document.getElementById('toast');
@@ -354,6 +363,7 @@ function renderSearchTab(items){
     a.innerHTML = '<div><div class="song-title"></div><div class="song-source"></div></div><div class="open-icon">↗</div>';
     a.querySelector('.song-title').textContent = song.title;
     a.querySelector('.song-source').textContent = song.source;
+    a.addEventListener('click', (e) => openFresh(e, song.url));
     li.appendChild(a);
     frag.appendChild(li);
   });
@@ -380,6 +390,7 @@ function renderMissaSections(){
       li.className = 'mini-item';
       li.innerHTML = '<a href="' + escapeHtml(song.url || '#') + '" target="_blank" rel="noopener"></a><button class="mini-remove">×</button>';
       li.querySelector('a').textContent = song.title;
+      li.querySelector('a').addEventListener('click', (e) => openFresh(e, song.url));
       li.querySelector('.mini-remove').addEventListener('click', () => {
         missaData[sec.key].splice(idx, 1);
         saveData('missa_repertorio_v1', missaData);
@@ -406,6 +417,7 @@ function renderRepertorio(){
     li.className = 'mini-item';
     li.innerHTML = '<a href="' + escapeHtml(song.url || '#') + '" target="_blank" rel="noopener"></a><button class="mini-remove">×</button>';
     li.querySelector('a').textContent = song.title;
+    li.querySelector('a').addEventListener('click', (e) => openFresh(e, song.url));
     li.querySelector('.mini-remove').addEventListener('click', () => {
       repertorioData.splice(idx, 1);
       saveData('repertorio_livre_v1', repertorioData);
