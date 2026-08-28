@@ -298,7 +298,7 @@
   <iframe id="viewer-iframe" allow="fullscreen"></iframe>
 </div>
 
-<script src="songs_data.js?v=8"></script>
+<script src="songs_data.js?v=9"></script>
 <script>
 const MISSA_SECTIONS = [
   {key:'entrada', label:'Canto de entrada'},
@@ -350,11 +350,14 @@ function openFresh(e, url){
 }
 
 // Converts a Drive "view" link into its embeddable "preview" form, keeping
-// the #page=N anchor.
+// the page number. Drive's /preview endpoint reads the page from a query
+// parameter rather than the #hash used by /view, so we convert it here.
 function toEmbedUrl(url){
-  const m = url && url.match(/\/file\/d\/([^/]+)\/view(#page=\d+)?/);
+  const m = url && url.match(/\/file\/d\/([^/]+)\/view(?:#page=(\d+))?/);
   if(m){
-    return 'https://drive.google.com/file/d/' + m[1] + '/preview' + (m[2] || '');
+    const fileId = m[1];
+    const page = m[2];
+    return 'https://drive.google.com/file/d/' + fileId + '/preview' + (page ? ('?page=' + page) : '');
   }
   return null;
 }
@@ -381,9 +384,9 @@ function openCifra(e, url, title){
   }
   viewerTitleEl.textContent = title || '';
   viewerExternalEl.href = url;
-  // Force a real reload even if only the #page=N fragment changed.
+  // Force a real reload even if only the page query param changed.
   viewerIframe.src = 'about:blank';
-  requestAnimationFrame(() => { viewerIframe.src = embedUrl; });
+  setTimeout(() => { viewerIframe.src = embedUrl; }, 30);
   viewerOverlay.classList.add('open');
 }
 
