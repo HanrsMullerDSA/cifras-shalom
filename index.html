@@ -183,6 +183,27 @@
   }
   .toast.show{opacity:1;}
 
+  .viewer-overlay{
+    display:none;position:fixed;inset:0;background:var(--paper);
+    z-index:300;flex-direction:column;
+  }
+  .viewer-overlay.open{display:flex;}
+  .viewer-head{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:14px 16px;border-bottom:1px solid var(--line);flex-shrink:0;
+  }
+  .viewer-head-title{
+    font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;
+    white-space:nowrap;flex:1;
+  }
+  .viewer-head-actions{display:flex;align-items:center;gap:14px;flex-shrink:0;}
+  .viewer-head-actions a{color:var(--gold);font-family:var(--mono);font-size:12px;text-decoration:none;white-space:nowrap;}
+  .viewer-close{
+    all:unset;cursor:pointer;color:var(--ink-dim);font-family:var(--mono);
+    font-size:22px;line-height:1;padding:0 2px;
+  }
+  #viewer-iframe{flex:1;width:100%;border:none;background:#fff;}
+
   footer{
     text-align:center;color:var(--ink-dim);font-family:var(--mono);
     font-size:10.5px;padding:30px 20px 40px;letter-spacing:.04em;
@@ -266,7 +287,18 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="songs_data.js?v=7"></script>
+<div class="viewer-overlay" id="viewer-overlay">
+  <div class="viewer-head">
+    <span class="viewer-head-title" id="viewer-title"></span>
+    <div class="viewer-head-actions">
+      <a id="viewer-external" target="_blank" rel="noopener">abrir fora ↗</a>
+      <button class="viewer-close" id="viewer-close">×</button>
+    </div>
+  </div>
+  <iframe id="viewer-iframe" allow="fullscreen"></iframe>
+</div>
+
+<script src="songs_data.js?v=8"></script>
 <script>
 const MISSA_SECTIONS = [
   {key:'entrada', label:'Canto de entrada'},
@@ -309,14 +341,57 @@ function escapeHtml(s){
   return d.innerHTML;
 }
 
-// Opens each link in a genuinely new tab/window, even when several links
-// point to the same Google Drive file with different #page=N — otherwise
-// some mobile browsers reuse the already-open viewer and ignore the new page.
+// Opens each link in a genuinely new tab/window (used as a fallback for
+// non-Google-Drive links, which can't be embedded due to X-Frame-Options).
 function openFresh(e, url){
   e.preventDefault();
   if(!url || url === '#') return;
   window.open(url, '_blank_' + Date.now() + '_' + Math.random().toString(36).slice(2), 'noopener');
 }
+
+// Converts a Drive "view" link into its embeddable "preview" form, keeping
+// the #page=N anchor.
+function toEmbedUrl(url){
+  const m = url && url.match(/\/file\/d\/([^/]+)\/view(#page=\d+)?/);
+  if(m){
+    return 'https://drive.google.com/file/d/' + m[1] + '/preview' + (m[2] || '');
+  }
+  return null;
+}
+
+const viewerOverlay = document.getElementById('viewer-overlay');
+const viewerTitleEl = document.getElementById('viewer-title');
+const viewerExternalEl = document.getElementById('viewer-external');
+const viewerIframe = document.getElementById('viewer-iframe');
+
+// Opens the cifra. Google Drive links are shown in an embedded, in-app
+// viewer we fully control (so re-opening a different page of the SAME file
+// always jumps to the right spot). Any other link (CifraClub, manual, etc.)
+// opens in a new browser tab instead, since most sites block being embedded.
+function openCifra(e, url, title){
+  if(e) e.preventDefault();
+  if(!url || url === '#'){
+    showToast('Sem link disponível para esta música');
+    return;
+  }
+  const embedUrl = toEmbedUrl(url);
+  if(!embedUrl){
+    window.open(url, '_blank_' + Date.now() + '_' + Math.random().toString(36).slice(2), 'noopener');
+    return;
+  }
+  viewerTitleEl.textContent = title || '';
+  viewerExternalEl.href = url;
+  // Force a real reload even if only the #page=N fragment changed.
+  viewerIframe.src = 'about:blank';
+  requestAnimationFrame(() => { viewerIframe.src = embedUrl; });
+  viewerOverlay.classList.add('open');
+}
+
+function closeCifraViewer(){
+  viewerOverlay.classList.remove('open');
+  viewerIframe.src = 'about:blank';
+}
+document.getElementById('viewer-close').addEventListener('click', closeCifraViewer);
 function showToast(msg){
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -358,12 +433,10 @@ function renderSearchTab(items){
     const li = document.createElement('li');
     const a = document.createElement('a');
     a.href = song.url || '#';
-    a.target = '_blank';
-    a.rel = 'noopener';
     a.innerHTML = '<div><div class="song-title"></div><div class="song-source"></div></div><div class="open-icon">↗</div>';
     a.querySelector('.song-title').textContent = song.title;
     a.querySelector('.song-source').textContent = song.source;
-    a.addEventListener('click', (e) => openFresh(e, song.url));
+    a.addEventListener('click', (e) => openCifra(e, song.url, song.title));
     li.appendChild(a);
     frag.appendChild(li);
   });
@@ -388,9 +461,9 @@ function renderMissaSections(){
     items.forEach((song, idx) => {
       const li = document.createElement('li');
       li.className = 'mini-item';
-      li.innerHTML = '<a href="' + escapeHtml(song.url || '#') + '" target="_blank" rel="noopener"></a><button class="mini-remove">×</button>';
+      li.innerHTML = '<a href="' + escapeHtml(song.url || '#') + '"></a><button class="mini-remove">×</button>';
       li.querySelector('a').textContent = song.title;
-      li.querySelector('a').addEventListener('click', (e) => openFresh(e, song.url));
+      li.querySelector('a').addEventListener('click', (e) => openCifra(e, song.url, song.title));
       li.querySelector('.mini-remove').addEventListener('click', () => {
         missaData[sec.key].splice(idx, 1);
         saveData('missa_repertorio_v1', missaData);
@@ -415,9 +488,9 @@ function renderRepertorio(){
   repertorioData.forEach((song, idx) => {
     const li = document.createElement('li');
     li.className = 'mini-item';
-    li.innerHTML = '<a href="' + escapeHtml(song.url || '#') + '" target="_blank" rel="noopener"></a><button class="mini-remove">×</button>';
+    li.innerHTML = '<a href="' + escapeHtml(song.url || '#') + '"></a><button class="mini-remove">×</button>';
     li.querySelector('a').textContent = song.title;
-    li.querySelector('a').addEventListener('click', (e) => openFresh(e, song.url));
+    li.querySelector('a').addEventListener('click', (e) => openCifra(e, song.url, song.title));
     li.querySelector('.mini-remove').addEventListener('click', () => {
       repertorioData.splice(idx, 1);
       saveData('repertorio_livre_v1', repertorioData);
